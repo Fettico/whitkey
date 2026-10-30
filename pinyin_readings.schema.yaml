@@ -1,0 +1,21 @@
+# 供 OB 和两分读取汉字拼音的内部索引设置，文件编码为 UTF-8。
+# 主方案依赖它来编译查询资源，不把它加入可切换的方案列表。
+schema:
+  schema_id: pinyin_readings
+  version: "1"
+
+engine:
+  processors: [speller, selector, express_editor]
+  segmentors: [abc_segmentor, fallback_segmentor]
+  translators: [table_translator]
+
+speller:
+  alphabet: "abcdefghijklmnopqrstuvwxyz"
+  initials: "abcdefghijklmnopqrstuvwxyz"
+
+translator:
+  dictionary: pinyin_readings
+  prism: pinyin_readings
+  enable_user_dict: false
+  enable_sentence: false
+  enable_completion: false

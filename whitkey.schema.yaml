@@ -1,0 +1,397 @@
+# 常用设置在 whitkey.custom.yaml 修改。这里设置处理顺序、编码和分段等运行规则。
+
+schema:
+  schema_id: whitkey
+  name: 键道6 • 纯白
+  version: "1"
+  author:
+    - 纯白整理：汤汤
+  dependencies:
+    # 这三项为 OB、汉字拼音读音和 two_part 提供编译资源，不加入用户切换列表。
+    # two_part 的查询对象等第一次合法查询时才创建。
+    - whitkey_stroke
+    - pinyin_readings
+    - whitkey_two_part
+  description: 
+    纯白是星空键道6的次级方案：相比于星空键道6，纯白更适合新手入门，想长期使用也很舒服
+
+layout:
+  # topup 指定哪些键继续补形，哪些键触发顶功。
+  topup:
+    # v/i/u/o/a 可以接在编码后补形，也各自作为功能入口。分号仍当标点，不加入形码组。
+    topup_with: "avuio"
+
+  # 反引号 ` 代替省略的码位，选正常候选时不会成为正文。
+  # 按 Enter 上屏原码时，仍保留实际输入的反引号。
+  algebra:
+    # 首码后有“声码＋形码”时，用反引号代替省略的首码。
+    - derive/^[bcdefghjklmnpqrstwxyz]([bcdefghjklmnpqrstwxyz][avuio].*)$/`$1/
+    # 保留首声码，用反引号代替第二声码。
+    - derive/^([bcdefghjklmnpqrstwxyz])[bcdefghjklmnpqrstwxyz]([avuio].*)$/$1`$2/
+    # 从第三位起，依次派生省略码，覆盖不同长度的形码扩展。
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2})[avuio](.*)$/$1`$2/
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2}[avuio`]).(.*)$/$1`$2/
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2}[avuio`]{2}).(.*)$/$1`$2/
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2}[avuio`]{3}).(.*)$/$1`$2/
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2}[avuio`]{4}).(.*)$/$1`$2/
+    - derive/^([bcdefghjklmnpqrstwxyz`]{2}[avuio`]{5}).$/$1`/
+    # 两声码开头的单字编码还可把前两位都换成反引号。
+    - derive/^[bcdefghjklmnpqrstwxyz]{2}([avuio`]*)$/``$1/
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [中文, 西文]
+  # 全角开关在最终上屏时把半角 ASCII 和空格转成全角，U 保存的原文仍按符号配置。
+  - name: full_shape
+    states: [半角, 全角]
+  # simplification 使用客户端提供的 OpenCC 数据，把简体候选显示为繁体。
+  - name: simplification
+    reset: 0
+    states: [简体, 繁體]
+  # 开启单字模式后，word_lookup 过滤多字候选。
+  - name: danzi_mode
+    reset: 0
+    states: [词组, 单字]
+  # buffered 表示 U 正在造词。造词提示持续写在分段 prompt 中，不靠这个开关只弹一次“缓冲”。
+  - name: buffered
+    reset: 0
+  # 这里只定义成功和失败开关，显示文字留空。Custom 的 switches/@5 和 @6 再填入对应提示。
+  - name: created_success
+    states: ["", ""]
+  - name: created_failure
+    states: ["", ""]
+
+# 普通标点在下面设置。i 和 ia～iz 的候选列表，在 Custom 末尾的 punctuator/symbols 修改。
+punctuator:
+  # 数字后的逗号和句号仍直接上屏中文标点，冒号保留数字分隔行为，方便输入时间。
+  digit_separators: ":"
+  full_shape:
+    " ": "　"
+    ",": {commit: "，"}
+    ".": {commit: "。"}
+    "<": "《"
+    ">": "》"
+    "/": "／"
+    "?": "？"
+    ";": "；"
+    ":": "："
+    "'": {pair: ["‘", "’"]}
+    '"': {pair: ["“", "”"]}
+    "\\": "、"
+    "|": "｜"
+    "~": "～"
+    "!": "！"
+    "@": "＠"
+    "#": "＃"
+    "%": "％"
+    "$": "￥"
+    "^": "……"
+    "&": "＆"
+    "*": "＊"
+    "(": "（"
+    ")": "）"
+    "-": "－"
+    "_": "——"
+    "+": "＋"
+    "=": "＝"
+    "[": "【"
+    "]": "】"
+    "{": "「"
+    "}": "」"
+  half_shape:
+    ",": {commit: "，"}
+    ".": {commit: "。"}
+    "<": "《"
+    ">": "》"
+    "/": "/"
+    "?": "？"
+    ";": "；"
+    ":": "："
+    "'": {pair: ["‘", "’"]}
+    '"': {pair: ["“", "”"]}
+    "\\": "、"
+    "|": "｜"
+    "~": "～"
+    "!": "！"
+    "@": "@"
+    "#": "#"
+    "%": "%"
+    "$": "¥"
+    "^": "……"
+    "&": "&"
+    "*": "*"
+    "(": "（"
+    ")": "）"
+    "-": "-"
+    "_": "——"
+    "+": "+"
+    "=": "="
+    "[": "【"
+    "]": "】"
+    "{": "「"
+    "}": "」"
+
+engine:
+  # 按键按下面的顺序处理。一项接受后，后面的处理器不再收到这个按键。
+  processors:
+    # 统计先记录按键，随后放行，不拦截输入。
+    - lua_processor@*whitkey.otj_stats
+    # 先处理 U、V 和 OV，避免 ascii_composer 先接走它们的按键。
+    # pipeline 只安排调用顺序，具体处理在各 key_* 文件中。
+    - lua_processor@*whitkey.pipeline*before
+    # 处理普通中文、西文和 Shift 临时英文。
+    - ascii_composer
+    # 按 recognizer/patterns 判断当前输入属于哪个模式。
+    - recognizer
+    # 再处理候选动作、普通中文规则和 I 键。U 已在 before 处理，不重复调用。
+    - lua_processor@*whitkey.pipeline*processor
+    # 读取下面 key_binder/bindings 的简繁和翻页快捷键。
+    - key_binder
+    # 接收 alphabet 允许的字符，并按 algebra 派生编码。
+    - speller
+    # 按下标点时，读取 punctuator 对应的设置。
+    - punctuator
+    # 数字或空格选择候选。
+    - selector
+    # 处理候选导航和高亮移动。
+    - navigator
+    # 原生编辑器处理退格和提交。普通 Enter 已在 before 把光标移到末尾，避免丢掉右边原码。
+    - express_editor
+
+  # segmentors 把输入分成带标签的片段，translator 再按标签决定由谁查询。
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    # v、a、i 三个 affix_segmentor 分别建立英文、快捷短语和 Emoji 分段。
+    - affix_segmentor@eng_quick_mode
+    - affix_segmentor@custom_phrase_mode
+    - affix_segmentor@emoji_mode
+    # 普通键道编码标成 abc。
+    - abc_segmentor
+    # OB 使用独立反查分段，不混进普通 abc 候选流。
+    - affix_segmentor@reverse_stroke_mode
+    - punct_segmentor
+    - fallback_segmentor
+
+  # Lua 功能共用一个按标签分流的入口，减少每次候选刷新要调用的组件数量。
+  translators:
+    - punct_translator
+    - lua_translator@*whitkey.pipeline*translator
+    # OB 使用原生表查询全笔顺。
+    - table_translator@reverse_stroke_mode
+
+  # filters 按下列顺序处理候选，修改时不能只看其中一项。
+  filters:
+    # 普通候选已在 word_lookup 中完成匹配、隐藏和排序；这里不再设置图标。
+    # punct 分段只在 U 中替换配置的符号，不套用中文排序。
+    - lua_filter@*whitkey.pipeline*symbols
+    # OB 先通过原生反查取得拼音，最后再由 label 应用旁注模板。
+    - reverse_lookup_filter@reverse_stroke_pinyin
+    # 按 simplification 开关转换简繁。
+    - simplifier@simplification
+    # OpenCC 转换后先做原生去重，label 再处理后置 Lua 读取时产生的普通候选重复。
+    - uniquifier
+    # OB 在去重后重排前十项，只处理实际显示的字，其他模式不变。
+    - lua_filter@*whitkey.ob_postpone
+    # label 放在 uniquifier 后面，避免已隐藏的底层旁注又被合并出来。
+    # 整理包装时仍保留 Phrase，Rime 才能继续学习。
+    - lua_filter@*whitkey.label
+
+speller:
+  # 复用 layout/algebra，同一组编码派生规则只写一遍。
+  algebra:
+    __include: "layout/algebra"
+  # 关闭原生唯一候选自动上屏，中文顶功由 input 处理。
+  auto_select: false
+  # alphabet 是允许进入编码串的字符，initials 是允许作为首键的字符。
+  alphabet: "abcdefghijklmnopqrstuvwxyz`"
+  initials: "abcdefghijklmnopqrstuvwxyz`"
+
+translator:
+  # 主词典入口，对应 enabled_dicts.dict.yaml。
+  dictionary: enabled_dicts
+  # 原生学习库名，使用后生成 whitkey.userdb。
+  user_dict: whitkey
+  # 不只保留常用字，single 中的生僻字也可显示。
+  enable_charset_filter: false
+  # 原生词典提供后缀补全，word_lookup 将 Completion 放在精确候选后。
+  enable_completion: true
+  # 开启原生逐字组词编码器和学习。
+  enable_encoder: true
+  # 关闭自动整句预测。
+  enable_sentence: false
+  enable_user_dict: true
+  # 只学习本次 composition 中手动选出的组合，不拿以前的上屏历史继续拼词。
+  # 上屏后立即退格的撤销由 Rime 处理。学习只用这一个 translator，避免额外 Memory 重复提交。
+  encode_commit_history: false
+  max_phrase_length: 6
+
+# 只用于辨认候选来源，不接用户词典，避免额外 Memory 提前提交学习事务。
+static_lookup:
+  dictionary: enabled_dicts
+  enable_user_dict: false
+
+# 两分由 Custom 开关控制，只查询完整四音码。
+# 它用独立编译词典，不混进主词典补全，也不参与普通调频。
+two_part:
+  dictionary: whitkey_two_part
+  pinyin_dictionary: pinyin_readings
+  enable_completion: false
+  enable_sentence: false
+  enable_user_dict: false
+
+# 四声码和逐字尾段追加的形码都留在真实输入中。选完拆码首字，移除它用过的形码，保留第二字音码。
+# 退格撤销时再恢复原形码。一至四位声码后都最多补四位形码。
+shape_input:
+  max_length: 4
+
+emoji_cn:
+  # i＋名称码查 Emoji，普通中文不混入表情。
+  # 这个开关只管 Emoji，关闭后 ia～iz 的拉丁扩展列表仍可用。
+  file: white_dicts/emoji.txt
+
+simplification:
+  # s2t.json 从 Rime 客户端的共享目录读取，包内不包含这个文件。
+  opencc_config: s2t.json
+  option_name: simplification
+
+picked_export:
+  file: white_replace/whitkey_picked.txt
+
+created_word:
+  # U 造词写入 TXT，不加入原生静态 import_tables。
+  store_file: white_replace/whitkey_created.txt
+  dictionary: enabled_dicts
+  # 填 0 表示 U 造词不限词长，原生自动组词的词长限制仍按 translator 设置。
+  max_phrase_length: 0
+  initial_quality: 200000
+
+# english_tab/enabled 同时控制 Mix 候选和快捷上屏。开启后，配置的热键从当前页第一项起找 Mix 词并直接提交，不写原生词频。
+# 只隐藏后缀时，改 Custom 的 candidate_comment/visibility/mix，不关闭这个功能。
+english_tab:
+  dictionary_file: white_dicts/mix.dict.yaml
+
+# U 造词先显示大写字母，再显示对应小写。例如 vl 依次为 O、V、L、o、v、l。
+mixed_word:
+  letter_map:
+    A: s
+    I: k
+    O: l
+    U: j
+    V: l
+
+# 候选图标统一在 Custom 的 candidate_label 修改。
+
+# Ctrl+Q 删除 created/picked，对静态词写 hidden。Shift+Delete 只删除自造词，两者共用删除和相关钉选清理。
+# Ctrl+Q 的按键在 Custom 的 candidate_remove/hotkey 设置。
+hidden_candidate:
+  store_file: white_replace/whitkey_hidden.txt
+
+# Ctrl+P 把普通多字词绑定到当前编码，中英混合词和补全词也可钉选。同码同词再按一次就取消，换词则替换，每码只留一个。
+# 钉选排在 fixed 后，不用于 fixed、拆码单字、Emoji、符号、V 英文或工具命令。
+pinned_candidate:
+  store_file: white_replace/whitkey_pinned.txt
+
+# prepicked 是逐字组成后，还没有再次完整选过的普通自组词。
+# picked 要有 picked TXT 记录，不能只因原生 userdb 中有这个词就认作 picked。
+candidate_order:
+  # 630 按表内完整编码查询。
+  fixed_file: fixed/630.txt
+  # duo 是独立扩展的二简表，可以设置两个声码及其扩展编码。
+  duo_file: fixed/duo.txt
+  # 2625 用一个声码加三个 a/i/o/u/v 形码，只按完整编码查询。
+  fixed_2625_file: fixed/2625.txt
+
+# v 后直接输入英文，支持 Shift、Caps Lock 和手机直接发送的大写字母。已有正文时，只用 Enter 上屏。
+eng_quick_mode:
+  tag: eng_quick_mode
+  prefix: "v"
+  tips: ""
+
+# 输入小写 a＋编码查 A_custom_phrases.txt。例如表内编码 a，实际输入 aa。
+custom_phrase_mode:
+  tag: custom_phrase_mode
+  prefix: "a"
+  tips: ""
+
+# i 和 ia～iz 由 punctuator 显示 Custom 列表。从第三键起，去掉 i 后查 Emoji 完整音码，可继续追加名称的形码，不做音码补全。
+# 名称自动取码：一、二字全音码，三字三声，四字以上前三声加末声；词库第三列填了编码时使用指定码。
+emoji_mode:
+  tag: emoji_mode
+  prefix: "i"
+  tips: ""
+
+# OB 全笔画反查：v 横或提，i 竖，u 撇，o 点或捺，a 折。
+# 字是否出现取决于 whitkey_stroke 中是否保留了对应记录。
+reverse_stroke_mode:
+  tag: reverse_stroke_mode
+  dictionary: whitkey_stroke
+  prism: whitkey_stroke
+  enable_user_dict: false
+  enable_sentence: false
+  enable_completion: true
+  prefix: "ob"
+  tips: ""
+  comment_format:
+    - erase/^.*$/
+
+
+# OB 用这份拼音索引给笔画候选标读音，两分也共用它，不把拼音词条导入主词典。
+reverse_stroke_pinyin:
+  tags: [reverse_stroke_mode]
+  dictionary: pinyin_readings
+  overwrite_comment: true
+
+custom_phrase:
+  store_file: white_replace/A_custom_phrases.txt
+  initial_quality: 1000000
+
+key_binder:
+  bindings:
+    # 有候选菜单时，减号向上翻页，等号向下翻页。
+    - {accept: minus, send: Page_Up, when: has_menu}
+    - {accept: equal, send: Page_Down, when: has_menu}
+    # Ctrl+Shift+F 切换简繁。Emoji 开关仍在 Custom 的 emoji_cn/enabled 设置。
+    - {when: always, accept: "Control+Shift+F", toggle: simplification}
+
+recognizer:
+  patterns:
+    email: "^[a-z][-_.0-9a-z]*@.*$"
+    uppercase: "[A-Z][-_+.'0-9A-Za-z]*$"
+    url: "^(www[.]|https?:|ftp:|mailto:).*$"
+    # ob 专门查询笔画，通用 O 命令排除 b，避免一段输入同时进入两个模式。
+    reverse_stroke_mode: "^ob[viuoa]*$"
+    # OV 只接收大小写英文和半角空格，整个正文保持一个分段。
+    styled_english: "^ov[A-Za-z ]*$"
+    lua: "^o([^b].*)?$"
+    # 这里识别 i 与 ia～iz 的输入，候选列表由 Custom 提供。
+    punct: "^i[a-z]?$"
+    # i 后至少两码才进入 Emoji。误输入了形码也留在这个分段，不串到普通中文。
+    # Lua 只接受完整声码匹配，名称可以自动取码，也可以在词库第三列指定码。
+    emoji_mode: "^i[bpmfdtnlgkhjqxzcsrywe][a-z`]+$"
+    # V 的空格、数字和 ASCII 标点都放入 context.input，作为正文。A 快捷短语只接受小写字母编码。
+    eng_quick_mode: "^v[ -~]*$"
+    custom_phrase_mode: "^a[a-z]*$"
+
+lua:
+  # 日期、数字和计算器共用 o 前缀，OV 固定用 ov。
+  # 修改前缀时要同时核对 recognizer 与 key_o 的分流，不建议只改这一处。
+  input: "o"
+
+# 输入 otj 查看或上屏统计。开关、保存条件、换行和客户端名称在 Custom 修改，这里只设置存档位置。
+# 存档只含数字，不保存正文或逐键历史。
+input_stats:
+  file: white_replace/whitkey_otj_stats.txt
+
+topup:
+  __include: "layout/topup"
+  # 普通词组输入至少四码后开始判断顶功，单字模式至少两码后开始判断。
+  min_length: 4
+  # 达到六位时进入顶功边界判断。这不是方案统一长度上限，追加形码和 O/V 命令各有自己的规则。
+  max_length: 6
+  # Custom 关闭死码保留后，才用这里决定顶功时是否清掉死码。
+  auto_clear: true
+  min_length_danzi: 2
+  # a/v/u/i/o 等功能前缀不按普通声码触发顶功。
+  topup_command: true

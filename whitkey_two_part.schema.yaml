@@ -1,0 +1,20 @@
+# 四音码两分的内部索引设置，文件编码为 UTF-8。
+# 主方案依赖它来编译查询资源，不把它加入可切换的方案列表。
+schema:
+  schema_id: whitkey_two_part
+  version: "1"
+
+engine:
+  processors: [speller, selector, express_editor]
+  segmentors: [abc_segmentor, fallback_segmentor]
+  translators: [table_translator]
+
+speller:
+  alphabet: "bpmfdtnlgkhjqxzcsrywe"
+  initials: "bpmfdtnlgkhjqxzcsrywe"
+
+translator:
+  dictionary: whitkey_two_part
+  enable_completion: false
+  enable_sentence: false
+  enable_user_dict: false

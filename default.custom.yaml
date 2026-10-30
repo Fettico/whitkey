@@ -1,0 +1,5 @@
+# 用 patch 覆盖 Rime 全局设置，不直接修改系统 default.yaml。方案列表只显示纯白键道。
+patch:
+  # schema_list 指定可切换的方案。whitkey 对应本包的 whitkey.schema.yaml。
+  schema_list:
+    - schema: whitkey

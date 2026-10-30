@@ -1,0 +1,18 @@
+✩ 纯白键道个人数据目录
+您对候选的所有改动记录都在white_replace这个文件夹里面，想备份就复制替换即可
+本人更喜欢这种方式，不喜欢通过userdb备份，词频对纯白没有影响（除了功能说明里列举的那种情况）
+用AI测试pinned created picked hidden文件各放8000行内容时，按键响应只有几毫秒
+
+U 自造词保存在 whitkey_created.txt。
+被再次选过的自组词保存在 whitkey_picked.txt。
+钉选保存在 whitkey_pinned.txt，每码一个词。
+隐藏记录保存在 whitkey_hidden.txt。
+whitkey_otj_stats.txt 只保存统计数字，不保存输入正文。
+A_custom_phrases.txt 是a键自定义短语文件
+这些运行文件会在实际使用时创建。
+
+
+如何恢复隐藏候选：
+在 whitkey_hidden.txt 末尾追加“删除<Tab>编码<Tab>词语”，再重新部署。
+例如恢复 efoi 下的“闪”，追加“删除<Tab>efoi<Tab>闪”。其中 <Tab> 要换成实际 Tab 键。
+Ctrl+Q 对自造词或 picked 执行删除时，修改的是它们各自的文件，不会额外生成 hidden 记录。

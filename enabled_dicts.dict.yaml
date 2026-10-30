@@ -1,0 +1,35 @@
+# 纯白主词典入口，主方案的 translator/dictionary 指向这里。
+# 导入 single、daily、星空词组和 mix。single 末尾包含扩展单字，一起导入。
+# 630、duo 和 2625 由 Lua 精确查询，不在此编译。这里同时设置原生逐字组词的取码公式，不直接写词条。
+---
+# name 与文件主体名 enabled_dicts 一致，translator 和 ReverseLookup 都用这个名字找词典。
+name: enabled_dicts
+version: "1"
+# 主词典保持 original，不在这里改成按权重排序。word_lookup 会调用 candidate 的规则，按来源排列候选。
+sort: original
+# 关闭发行包自带的预设词表，只使用下面导入的词库。
+use_preset_vocabulary: false
+
+# encoder 在逐字选完后，为 Rime 学习的新词取码。
+# A/B/C/Z 指第一、第二、第三和末字，a/b/c 指对应字编码的第一、第二和第三位。
+encoder:
+  rules:
+    # 二字各取前两码。
+    - length_equal: 2
+      formula: "AaAbBaBb"
+    # 三字各取声母，再取首字第一笔形码。
+    - length_equal: 3
+      formula: "AaBaCaAc"
+    # 四至六字取前三字声母和末字声母。
+    - length_in_range: [4, 6]
+      formula: "AaBaCaZa"
+import_tables:
+  # single 包含短码、全码和扩展单字，供查字与反查。精确单字进入 single 排序层。
+  - fixed/single
+  # daily 放日常补充词，独立于主词组表，便于维护。
+  - white_dicts/daily
+  # 星空键道词组表提供主词组候选。
+  - white_dicts/keytao.phrase
+  # mix 放英文和中英混合词，例如 WiFi、维生素C 和哆啦A梦。
+  - white_dicts/mix
+...

@@ -1,0 +1,214 @@
+# 纯白键道常用设置自定义
+# 修改后重新部署生效
+# 开关填 true 表示开启，填 false 表示关闭。其他设置按下方说明填写
+# 编码规则和处理顺序仍在 whitkey.schema.yaml 及 Lua 中
+
+patch:
+  # 这里自定义方案的显示名字
+  schema/name: 纯白键道
+
+  # Focus总开关（强制630）默认填 false 关闭
+  focus/enabled: false
+  # 填 true 时，按下面三项决定开关。如果同一个词还在另一张已开启限制的表里，仍按另一张表限制。
+  focus/fixed_630: true
+  focus/duo: true
+  focus/fixed_2625: true
+
+  # 控制四音码的两分查字开关
+  two_part/enabled: true
+
+  # OB全笔画反查：继续补笔画时，让前面没当过首选的字先显示
+  # 只调整前十个候选。退格和同码刷新不轮换，其他输入模式不受影响
+  # 填 false 关闭，使用原生的笔画候选顺序
+  reverse_stroke_mode/postpone: true
+
+  # 每页显示的候选数量
+  menu/page_size: 6
+
+  # Emoji 开关选项
+  emoji_cn/enabled: true
+  # 超过60秒未使用Emoji，在下一次普通查询时释放。再查 Emoji 时重新加载。填 0 表示一直保留。
+  emoji_cn/idle_seconds: 60
+
+  # 输入统计开关选项
+  input_stats/enabled: true
+
+  # 英文词库与 Tab 快捷上屏
+  english_tab/enabled: true
+
+  # 快捷键
+  english_tab/hotkey: "Tab"
+  candidate_remove/hotkey: "Control+q"
+  pinned_candidate/hotkey: "Control+p"
+
+  # 繁简切换快捷键更改
+  "key_binder/bindings/@2/accept": "Control+Shift+F"
+
+  # 死码拦截开关
+  topup/keep_dead_code: true
+
+  # 唯一候选数字上屏（仅支持一简、630、2625及已配置的 A/U 单键）
+  # 按 2～9 / 0 键，上屏内容为「候选 + 对应数字」，数字 1 始终保留给普通候选选择使用
+  unique_digit/enabled: true
+
+  # X候选列表
+  # 第一个候选是候选单字词典的“而”
+  x_candidates/extra: [唉, 诶]
+
+  # A、V、U、I、O单键显示的快捷单字
+  entry_candidate/enabled: true
+  entry_candidate/a: "又"
+  entry_candidate/v: "带"
+  entry_candidate/u: "卖"
+  entry_candidate/o: "意"
+
+  # U造词中输入数字用 v 入口。例如输入 v50，按空格选中 50 后，再继续输入其他内容
+  # 每位数字按自己的读音取码：0 按零，1～9 按一～九，不把 50 当作五十
+  # key：仅可填入一个半角标点或符号；若填全角会被跳过，并记录配置错误
+  # text：实际最终上屏的符号。填","保留英文逗号，填"，"保留中文逗号
+  # code：留空表示保留符号但不取码。填写后，取码规则和英文字母相同
+  # 编码只能用 21 个声码键，不能用 a/v/i/u/o 这五个形码键；符号不支持填入字母、数字、反引号`和-和=
+  # 已保存的自造词沿用原有编码；若要更换为新编码，需先删除旧词，再重新造词
+  created_word/symbols:
+    - key: ","
+      text: "，"
+      code: ""
+    - key: "/"
+      text: "/"
+      code: "jj"
+
+  # 全局后缀开关：all 表示显示，two_part_only 表示默认只显示两分拼音，none 表示默认隐藏
+  # 下面某个类别填 show 或 hide，可以单独改这个类别，不必改变全局设置
+  candidate_comment/mode: "all"
+
+  # 补全码显示
+  # letter：把 ~a 显示成 a。full：保留 ~a。none：整个码尾提示都不显示
+  candidate_comment/completion_hint: "letter"
+
+  # inherit：跟随全局。show：允许显示。hide：隐藏。
+  # prepicked 是逐字组成后，还没再次完整选过的普通自组词。
+  # picked 是后来又完整选过，并已保存到 TXT 的普通自组词。
+  # mix 只控制 mix 词库候选后面的提示。不影响 Tab 上屏。
+  # emoji 控制 i＋名称编码查到的 Emoji 后面的 [名称]。two_part 控制两分字后面的拼音。
+  # fixed_code、duo_code、fixed_2625_code 分别为 630、DUO、2625 的提示
+  # 同一个词出现在多张表里时，开启的编码旁注会一起显示。
+  candidate_comment/visibility:
+    fixed_630: inherit
+    duo: inherit
+    fixed_2625: inherit
+    single: hide
+    created: show
+    pinned: show
+    prepicked: show
+    picked: show
+    mix: hide
+    emoji: hide
+    two_part: show
+    fixed_code: show
+    duo_code: show
+    fixed_2625_code: show
+
+  # 图标与旁注样式统一在这里修改。
+  # 模板或图标留空时，对应内容不显示。
+  candidate_label/fixed_630: "✩"
+  candidate_label/duo: "✩"
+  candidate_label/fixed_2625: "✩"
+  candidate_label/single: "✩"
+  candidate_label/created: "✧"
+  candidate_label/pinned: "✦"
+  candidate_label/prepicked: "❅"
+  candidate_label/picked: "•"
+  candidate_label/fixed_code_format: "[630: {code}]"
+  candidate_label/duo_code_format: "[DUO: {code}]"
+  candidate_label/fixed_2625_code_format: "[2625: {code}]"
+  candidate_label/two_part_format: "{pinyin}"
+
+  # O 工具与 OB 反查的旁注。OB 的 {value} 会替换成拼音。
+  tool_labels/number_lower: " 小写"
+  tool_labels/number_upper: " 大写"
+  tool_labels/number_trad_lower: " 小寫"
+  tool_labels/number_trad_upper: " 大寫"
+  tool_labels/equation: "等式"
+  tool_labels/answer: "答案"
+  tool_labels/expression: "表达式"
+  tool_labels/statistics: "今日统计"
+  tool_labels/reverse_stroke: "{value}"
+
+  # OV 的字体候选按下面列表的顺序显示。name 填候选后面的名字。
+  # upper 按 A～Z 的顺序填 26 个大写字符。lower 按 a～z 的顺序填 26 个小写字符。
+  # 字母之间不要加空格。想加字体，就复制一整项再修改。想删或换顺序，也要整项操作。
+  # 数字 1～9 选择前九项，0 选择第十项。更多候选可用导航、鼠标或 Shift+空格选择。
+  # 修改后重新部署，再重新加载方案。名称或字母数量填错时，只跳过这一项并记录错误，其他项仍可用。
+  styled_english/styles:
+    - name: "花体"
+      upper: "𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵"
+      lower: "𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏"
+    - name: "粗体"
+      upper: "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙"
+      lower: "𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳"
+    - name: "斜体"
+      upper: "𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡"
+      lower: "𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻"
+    - name: "粗体哥特体"
+      upper: "𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅"
+      lower: "𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟"
+  # OV 正文只接收大小写英文字母和半角空格。
+  # 空格：输入空格。Shift+空格：选当前候选。Enter：上屏 ov 加完整正文。
+  styled_english/state_prompt: "〔ℰ𝓃ℊ〕"
+
+  # 只在已追加形码时改变预编辑文字。例如改成 "{sound} 补[{shape}]" 会显示“音码 补[形码]”
+  shape_display/format: "{sound} 形[{shape}]"
+
+  # U键自造词模式中的显示图标
+  created_word/state_prompt: "✧"
+  # 成功/失败对应主方案 switches 的第 6、7 项，索引为 5、6。
+  # 每项的第一个状态保持空字符串。若改主方案 switches 的顺序，这里的 @5、@6 也要对应修改。
+  switches/@5/states: ["", "成功"]
+  switches/@6/states: ["", "失败"]
+
+  # 统计先记在内存里。距离上次保存满 60 秒，或未保存的字数达到 200 字，就在下次相关操作时保存。
+  # 下面可以改这两个数。不是每打一个字都写文件，也没有后台定时器。
+  input_stats/save_seconds: 60
+  input_stats/save_characters: 200
+  input_stats/peak_min_seconds: 15
+  # line_ending=auto 会按平台选择换行。
+  # client_name 留空时自动识别客户端名称。
+  input_stats/line_ending: "auto"
+  input_stats/client_name: ""
+
+  # created、picked、pinned、hidden 各自计算不再有效的旧记录。
+  # 某张表达到下面的数量后，下次重新加载这张表时，只把仍有效的记录写回。
+  # 平时新增或删除只追加操作。打到下一个词不会重新读表，也不会触发这次整理。
+  personal_records/compact_stale_records: 100
+
+  # I 键候选放在设置文件末尾。i 是符号面板，ia～iz 是拉丁扩展字母。
+  # 可以调整每个列表的内容和顺序，修改后重新部署。
+  punctuator/symbols:
+    # 单独输入 i 时，按下列顺序显示候选。最后一项是全角竖线。
+    "i": ['.', '+', '·', '=', '"', '÷', '<', '>', '-', '≤', '≥', '≈', '≠', '[', ']', '｜']
+    "ia": [ā, á, ǎ, à]
+    "ib": [ḃ, ḅ, ᵇ, ƀ, ƃ, ḇ, ɓ, ᵬ, ᶀ, ꞗ]
+    "ic": [ç, ć, č, ĉ, ċ, ᶜ, ȼ, ꞓ, ƈ, ḉ, ꞔ, ɕ, ᶝ, ꜿ]
+    "id": [ď, ḋ, ᵈ, đ, ƌ, ᵭ, ḑ, ḓ, ḏ, ḍ, ɖ, ɗ, ᶑ, ᶁ]
+    "ie": [ē, é, ě, è, ₑ, ᵉ, ɞ, ʚ, ǝ, ₔ, ᵊ]
+    "if": [ḟ, ᶠ, ƒ, ᵮ, ᶂ, ꞙ]
+    "ig": [ḡ, ǵ, ǧ, ĝ, ğ, ġ, ᵍ, ǥ, ꞡ, ģ, ɠ, ᵷ, ᶃ, ɡ, ꬶ, ᶢ]
+    "ih": [ĥ, ȟ, ḣ, ḧ, ͪ, ħ, ɦ, ʱ, ꜧ, ꭜ, ɧ, ḩ, ẖ, ḫ, ḥ, ⱨ, ꞕ, ɥ, ᶣ, ʮ, ʯ, ⱶ]
+    "ii": [ī, í, ǐ, ì]
+    "ij": [ĵ, ǰ, ⱼ, ʲ, ɉ, ȷ, ɟ, ᶡ, ʄ, ʝ, ᶨ]
+    "ik": [ḱ, ǩ, ₖ, ᵏ, ꝁ, ꝃ, ꞣ, ꝅ, ķ, ḵ, ḳ, ƙ, ᶄ, ⱪ, ʞ, ĸ]
+    "il": [ĺ, ˡ, ł, ꝉ, ƚ, ⱡ, ɫ, ꭞ, ꬸ, ɬ, ľ, ļ, ḻ, ḽ, ḷ, ŀ, ꝲ, ƛ, ᶅ, ᶪ, ɭ, ᶩ, ḹ, ꬷ, ꭝ, ꬹ, ȴ, ꝇ]
+    "im": [ḿ, ṁ, ᵐ, ₘ, ṃ, ᵯ, ɱ, ᶬ, ꬺ, ᶆ, ꝳ, ɯ, ᵚ, ɰ, ᶭ, ᴟ]
+    "in": [ń, ň, ǹ, ṅ, ñ, ₙ, ⁿ, ɲ, ᶮ, ɳ, ᶯ, ȵ, ƞ, ŋ, ᵑ, ꬻ, ꬼ, ꝴ, ŉ, ꞥ, ņ, ṉ, ṋ, ṇ, ᵰ, ꞑ, ᶇ]
+    "io": [ō, ó, ő, ǒ, ò, ô, ŏ, ȯ, ö, õ, ₒ, ᵒ, º, ɔ, ᵓ, ᶗ, ꬿ, ø, ǫ, ọ, ơ, ɵ, ᶱ, ᴑ, ᴒ, ᴓ, ꝋ, ꝍ]
+    "ip": [ṕ, ṗ, ᵖ, ᵽ, ꝑ, ᵱ, ƥ, ᶈ, ꝓ, ꝕ, ɸ, ᶲ, ⱷ]
+    "iq": [ɋ, ꝗ, ꝙ, ʠ]
+    "ir": [ŕ, ř, ȑ, ȓ, ṙ, ᵣ, ɍ, ꞧ, ᵲ, ŗ, ṟ, ṛ, ṝ, ᵳ, ɽ, ᶉ, ꭇ, ꭈ, ꭊ, ꭉ, ꝵ, ꭋ, ꭌ, ɹ, ʴ, ɺ, ɻ, ʵ, ⱹ, ɼ, ʳ, ɾ, ɿ, ꝛ, ꝝ]
+    "is": [ś, ŝ, š, ṡ, ˢ, ʂ, ᶳ, ᵴ, ꞩ, ᶊ, ş, ṣ, ș, ȿ, ṥ, ṧ, ṩ, ʃ, ᶴ, ʆ, ᶘ, ʅ, ƪ, ß, ſ, ẛ, ẜ, ẝ]
+    "it": [ť, ṫ, ẗ, ᵗ, ₜ, ʈ, þ, ꝥ, ꝧ, ŧ, ⱦ, ţ, ṯ, ṱ, ṭ, ț, ƭ, ᵵ, ƫ, ᶵ, ʇ, ȶ, ꝷ]
+    "iu": [ū, ú, ű, ǔ, ù, ȕ, û, ŭ, ȗ, ü, ǖ, ǘ, ǚ, ǜ]
+    "iv": [ü, ǖ, ǘ, ǚ, ǜ, ṽ, ᵛ, ᵥ, ṿ, ꝟ, ʋ, ᶹ, ᶌ, ⱴ, ⱱ, ỽ, ʌ, ᶺ]
+    "iw": [ẃ, ẁ, ŵ, ẇ, ẅ, ẘ, ʷ, ẉ, ƿ, ʍ, ⱳ]
+    "ix": [ẋ, ẍ, ᶍ, ˣ, ₓ, ꭖ, ꭗ, ꭘ, ꭙ]
+    "iy": [ȳ, ý, ỳ, ŷ, ẏ, ÿ, ẙ, ỹ, ʸ, ɏ, ỷ, ỵ, ƴ, ʎ, ỿ, ꭚ]
+    "iz": [ź, ž, ẑ, ż, ᶻ, ʐ, ᶼ, ʑ, ᶽ, ƶ, ẕ, ẓ, ᵶ, ȥ, ⱬ, ᶎ, ʒ, ᶾ, ǯ, ʓ, ƹ, ƺ, ᶚ, θ, ᶿ, ɀ, ꝣ]
